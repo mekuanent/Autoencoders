@@ -1,4 +1,11 @@
 library(keras)
+
+display_image <- function(arr){
+	m = array_reshape(arr, c(28, 28))
+	m = m * 255
+	image(m, useRaster=TRUE)
+}
+
 mnist <- dataset_mnist()
 x_train <- mnist$train$x
 
@@ -26,15 +33,11 @@ history <- model %>% fit(
 
 res <- model %>% predict(x_train[1:2,])
 
-m = array_reshape(res[1,], c(28, 28))
-m = m * 255
-image(m, col= c("white", "black"), useRaster=TRUE)
+display_image(res[1,])
 
-m_t = array_reshape(x_train[1,], c(28, 28))
-m_t = m_t * 255
-image(m_t, col= c("white", "black"), useRaster=TRUE)
+display_image(x_train[1,])
 
-random_flat_a = c((1:784) %% 255)
+random_flat_a <- c((1:784) %% 255)
 random <- matrix(random_flat_a, nrow=28, ncol=28, byrow=TRUE)
 mr <- array_reshape(random, c(28, 28))
 image(mr, useRaster=TRUE)
@@ -44,15 +47,22 @@ rand_res <- model %>% predict(matrix(random_flat_a, nrow=1, n=784, byrow=TRUE))
 rand_a <- array_reshape(rand_res[1,]*255, c(28, 28))
 image(rand_a, useRaster=TRUE)
 
-#what layers learned
-
-for(layer in intermediate_layer_model$layers){
-	print(layer$get_weights()[2])
-	#print(ncol(layer$get_weights()[1]))
-	#print(nrow(layer$get_weights()[2]))
+calculate_distance <- function(inp, out){
+	return(sqrt(sum((inp - out)^2))/length(inp))
 }
 
-nneeds <- function(weights){
+calculate_distance(x_train[1,], res[1,])
+
+#what layers learned
+
+layer <- model$layers[1]
+
+for(l in model$layers){
+	layer <- l
+	break
+}
+
+layer_node_peeks <- function(weights){
 	
 	
 	
@@ -64,7 +74,7 @@ nneeds <- function(weights){
 	for(w in weights){
 		dem <- sqrt(sum(w^2))
 		arr <- (w/dem) * 255
-		m = array_reshape(arr, c(28, 28))
+		m <- array_reshape(arr, c(28, 28))
 		holder <- append(holder, list(m))
 	}
 	
@@ -79,4 +89,4 @@ nneeds <- function(weights){
 
 }
 weights <- as.data.frame(layer$get_weights()[1])
-nneeds(weights)
+layer_node_peeks(weights)
