@@ -1,1 +1,3 @@
-# Autoencoders
+# Autoencoder
+
+A simple autoencoder implementation
